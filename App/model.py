@@ -141,6 +141,123 @@ def creating_hash(control):
     
 #Requerimientos
 
+def req_1(control, n_partidos, equipo, condicion):
+    
+    partidos = lt.newList("ARRAY_LIST")
+    equipos = set()
+    partidos_equipo = 0
+    
+    for resultado in lt.iterator(control["results"]):
+        
+        equipos.add(resultado["home_team"])
+        equipos.add(resultado["away_team"])
+       
+        if resultado["home_team"] == equipo or resultado["away_team"] == equipo:
+            
+            partidos_equipo += 1
+            
+            if condicion == "3":
+                lt.addLast(partidos, resultado)
+            
+            elif condicion == "2":
+                if resultado["away_team"] == equipo or (resultado["home_team"] == equipo and resultado["neutral"] == "True"):
+                    lt.addLast(partidos, resultado)
+            
+            elif condicion == "1":
+                if resultado["home_team"] == equipo and resultado["neutral"] == "False":
+                    lt.addLast(partidos, resultado)
+            
+            
+    return len(equipos), partidos_equipo, lt.size(partidos), partidos
+            
+def req_2(control, n_goles, jugador):
+    
+    goles = mp.get(control["hash_scorers"], jugador)["value"]
+    jugadores = mp.size(control["hash_scorers"])
+    goles_jugador = lt.size(goles)
+    goles_penal = 0
+    
+    for gol in goles:
+        if gol["penalty"] == "True":
+            goles_penal += 1
+            
+    if n_goles > goles_jugador:
+        goles_a_mostrar = lt.subList(goles, 1, goles_jugador)
+        
+    else:
+        goles_a_mostrar = goles
+        
+    return jugadores, goles_jugador, goles_penal, goles_a_mostrar
+    
+def req_3(control, equipo, fecha_inicial, fecha_final):
+    
+    equipos = set()
+    partidos_local = 0
+    partidos_visitante = 0
+    partidos_por_equipo = lt.newList("ARRAY_LIST")
+    
+    for resultado in lt.iterator(control["results"]):
+        
+        equipos.add(resultado["home_team"])
+        equipos.add(resultado["away_team"])
+        
+        if (resultado["home_team"] == equipo or resultado["away_team"] == equipo) and intervalo(fecha_inicial, fecha_final, resultado["date"]):
+            
+            resultado["penalties"] = "Falso"
+            resultado["autogoles"] = "Falso"
+            
+            if mp.contains(control["hash_goalscorers"], f"{resultado['date']}-{resultado['home_team']}-{resultado['away_team']}"):
+                lista_goles = mp.get(control["hash_goalscorers"], f"{resultado['date']}-{resultado['home_team']}-{resultado['away_team']}")["value"]
+                for i in lt.iterator(lista_goles):
+                    if i["team"] == equipo and i["own_goal"] == "True":
+                        resultado["autogoles"] = "Verdadero"
+                    if i["team"] == equipo and i["penalty"] == "True":
+                        resultado["penalties"] = "Verdadero"
+            
+            if resultado["home_team"] == equipo:
+                partidos_local += 1
+            else:
+                partidos_visitante += 1
+                
+            lt.addLast(partidos_por_equipo, resultado)
+            
+    return len(equipos), partidos_local, partidos_visitante, partidos_por_equipo, lt.size(partidos_por_equipo)     
+
+def req_4(control, torneo, fecha_inicial, fecha_final):
+    
+    torneos = set()
+    paises = set()
+    ciudades = set()
+    partidos_con_penales = 0
+    partidos_torneo = lt.newList("ARRAY_LIST")
+    
+    for resultado in lt.iterator(control["results"]):
+        
+        if resultado["tournament"] == torneo and intervalo(fecha_inicial, fecha_final, resultado["date"]):
+            
+            
+            if not mp.contains(control["hash_shootouts"], f'{resultado["date"]}-{resultado["home_team"]}-{resultado["away_team"]}'):
+                resultado["penalties"] = "Falso"
+                resultado["ganador_penales"] = "Nadie"
+                
+            else:
+                resultado["penalties"] = "Verdadero"
+                resultado["ganador_penales"] = mp.get(control["hash_shootouts"], f'{resultado["date"]}-{resultado["home_team"]}-{resultado["away_team"]}')['value']["winner"]
+                partidos_con_penales += 1
+            
+            if resultado["tournament"] not in torneos:
+                torneos.add(resultado["tournament"])
+                
+            if resultado["country"] not in paises:
+                paises.add(resultado["country"])
+                
+            if resultado["city"] not in ciudades:
+                ciudades.add(resultado["city"])
+                
+            lt.addLast(partidos_torneo, resultado)
+            
+    return len(torneos), len(paises), len(ciudades), lt.size(partidos_torneo), partidos_con_penales, partidos_torneo
+                
 def req_5(control, anotador, fecha_inicial, fecha_final):
     
     goles = lt.newList("ARRAY_LIST")
@@ -179,7 +296,7 @@ def req_5(control, anotador, fecha_inicial, fecha_final):
             
                
             
-    return lt.size(jugadores), lt.size(goles), lt.size(torneos), penales, autogoles, goles
+    return len(jugadores), len(goles), len(torneos), penales, autogoles, goles
 
 def req_6(control, n_equipos, torneo, año):
     

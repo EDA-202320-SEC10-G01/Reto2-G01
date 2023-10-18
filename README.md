@@ -19,6 +19,9 @@ This repository is part of the data structure and algorithms (#EDA) teaching fra
 
 1. [Challenge Template](#Challenge-Template)
     1. [Members](#Members)
+        Tomas Acosta Romero t.acostar@uniandes.edu.co
+        Jose Rojaz
+        Leonardo Beltran
     1. [About The Project](#About-The-Project)
         1. [Structure](#Structure)
     1. [Usage](#Usage)

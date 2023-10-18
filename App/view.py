@@ -65,6 +65,8 @@ def load_and_sort_data(control):
     Carga los datos
     """
     
+    #Interactua con el usuario para pedir el tamaño de los datos y el algoritmo de ordenamiento
+    
     tamaño = input("""Ingrese el numero asociado al tamaño de la muestra: \n
     1. Small \n
     2. 5% \n
@@ -83,16 +85,27 @@ def load_and_sort_data(control):
     5. Quick Sort \n""")
     
     
-    controller.load_and_sort_data(control, tamaño, algoritmo)
+    tiempo_carga, tiempo_ordenamiento, memoria = controller.load_and_sort_data(control, tamaño, algoritmo)
+    
+    print("=============== Carga de Datos ==================")
+    print(f"\nTiempo de carga: {tiempo_carga} ms")
+    print(f"\nTiempo de ordenamiento: {tiempo_ordenamiento} ms")
+    print(f"\nMemoria utilizada: {memoria} kB")
     
 #Funciones para mostrar los datos    
     
 def print_table(data, headers):
+    
     """
-    Imprime los resultados
+    Imprime los datos en forma de tabla
     """
+    
+    #Se verifica que haya datos para mostrar
+    
     if lt.size(data) == 0:
         print("No se encontraron datos para mostrar")
+        
+    #Se crea una sublista de máximo 6 elementos para mostrar
 
     elif lt.size(data) > 6:
         first_three = lt.subList(data, 1, 3) 
@@ -104,6 +117,8 @@ def print_table(data, headers):
         
         for i in lt.iterator(last_three):
             lt.addLast(combined_list, i)
+     
+    #Se imprimen los datos en forma de tabla 
         
         print(f"De {lt.size(data)} elementos, se muestran los primeros y ultimos 3\n")
         print(tabulate(lt.iterator(combined_list), headers, tablefmt="fancy_grid"))
@@ -113,6 +128,12 @@ def print_table(data, headers):
         print(tabulate(lt.iterator(data), headers, tablefmt="fancy_grid"))
               
 def print_data(control):
+    
+    """
+    Funcion para mostrar los datos cargados al usuario (results, shootouts, goalscorers)
+    """
+    
+    #Se establecen los encabezados de las tablas de los tres archivos a cargar
     
     headers_results = {"date": "Fecha",
                     "home_team": "Equipo local",
@@ -138,19 +159,121 @@ def print_data(control):
                     "away_team": "Equipo visitante",
                     "winner": "Ganador"}
     
-    if lt.isEmpty(control["results"]) == False:
-        print_table(control["results"], headers_results)
+    #Se muestran los datos al usuario
     
-    if lt.isEmpty(control["goalscorers"]) == False:
-        print_table(control["goalscorers"], headers_goalscorer)
-    
-    if lt.isEmpty(control["shootouts"]) == False:
-        print_table(control["shootouts"], headers_shootouts)
+    print_table(control["results"], headers_results)
+    print_table(control["goalscorers"], headers_goalscorer)
+    print_table(control["shootouts"], headers_shootouts)
     
 #Funciones para mostrar los requerimientos
 
-def print_req_5(control):
+def print_req_1(control):
     
+    """
+    Se ejecuta el requerimiento 1 para posteriormente mostrar los resultados al usuario
+    """
+    
+    #Se piden los datos al usuario
+    
+    equipo = input("Ingrese el nombre del equipo que desea consultar\n")
+    n_partidos = input("Ingrese el numero de partidos que desea consultar\n")
+    condicion = input("Ingrese la condicion que desea consultar\n1. Local\n2. Visitante\n3. Indiferente\n")
+
+    #Se establecen los encabezados de la tabla
+    
+    encabezados = {"date": "Fecha",
+                   "home_team": "Equipo local",
+                   "away_team": "Equipo visitante",
+                   "home_score": "Marcador local",
+                   "away_score": "Marcador visitante",
+                   "tournament": "Torneo",
+                   "city": "Ciudad",
+                   "country": "País",
+                   "neutral": "Neutral"}
+    
+    #Se llama la funcion del controlador
+
+    n_equipos, n_partidos_equipo, n_partidos_condicion, partidos = controller.req_1(control, n_partidos, equipo, condicion)
+    
+    #Se muestra la funcion al usuario
+    
+    condiciones = {"1": "Local", "2": "Visitante", "3": "Indiferente"}
+    
+    print("\n=============== Datos del usuario ==================")
+    print(f"\nEquipo: {equipo}")
+    print(f"\nNumero de partidos recientes: {n_partidos}")
+    print(f"\nCondicion: {condiciones[condicion]}")
+    
+    print("\n=============== Resultados ==================")
+    print(f"\nSe encontraron {n_equipos} equipos con informacion disponible")
+    print(f"\nSe encontraron {n_partidos_equipo} partidos del equipo {equipo}")
+    print(f"\nSe encontraron {n_partidos_condicion} partidos del equipo {equipo} en condicion de {condiciones[condicion]}")
+    
+    print_table(partidos, headers)
+
+
+def print_req_4(control):
+    """
+    Imprime los resultados del requerimiento 4 en la consola.
+
+    Args:
+    control: objeto Control que maneja los datos.
+
+    Returns:
+    None
+    """
+    # Solicita al usuario el torneo y el rango de fechas a consultar
+    torneo = input("Ingrese el nombre del torneo que desea consultar\n")
+    año_inicial = input("Ingrese el año inicial que desea consultar\n")
+    mes_inicial = input("Ingrese el mes inicial que desea consultar\n")
+    dia_inicial = input("Ingrese el dia inicial que desea consultar\n")
+    año_final = input("Ingrese el año final que desea consultar\n")
+    mes_final = input("Ingrese el mes final que desea consultar\n")
+    dia_final = input("Ingrese el dia final que desea consultar\n")
+    
+    # Formatea el rango de fechas como cadenas de texto
+    fecha_inicial = f"{año_inicial}-{mes_inicial}-{dia_inicial}"
+    fecha_final = f"{año_final}-{mes_final}-{dia_final}"
+    
+    # Define los encabezados para la tabla que se imprimirá
+    headers = {"date": "Fecha",
+               "country": "País",
+                "city": "Ciudad",
+                "home_team": "Equipo local",
+                "away_team": "Equipo visitante",
+                "home_score": "Marcador local",
+                "away_score": "Marcador visitante",
+                "penalties": "Penales",
+                "ganador_penales": "Ganador penales"}
+    
+    # Consulta los datos y recupera los resultados
+    n_torneos, n_paises, n_ciudades, n_partidos_torneo, n_partidos_penales, partidos_torneo = controller.req_4(control, torneo, fecha_inicial, fecha_final)
+    
+    # Imprime la entrada del usuario y los resultados de la consulta
+    print("\n=============== Datos del usuario ==================")
+    print(f"\nTorneo: {torneo}")
+    print(f"\nFecha inicial: {año_inicial}-{mes_inicial}-{dia_inicial}")
+    print(f"\nFecha final: {año_final}-{mes_final}-{dia_final}")
+    
+    print("\n=============== Resultados ==================")
+    print(f"\nSe encontraron {n_torneos} torneos")
+    print(f"\nSe encontraron {n_paises} paises en el torneo {torneo}")
+    print(f"\nSe encontraron {n_ciudades} ciudades en el torneo {torneo}")
+    print(f"\nSe encontraron {n_partidos_torneo} partidos en el torneo {torneo}")
+    print(f"\nSe encontraron {n_partidos_penales} partidos definidos por penales en el torneo {torneo}")
+    
+    # Imprime la tabla de resultados de la consulta
+    print_table(partidos_torneo, headers)
+
+def print_req_5(control):
+    """
+    Función que solicita al usuario información para realizar la consulta de la petición 5 y muestra los resultados obtenidos.
+    
+    Parámetros:
+    control (Controlador): objeto de la clase Controlador encargado de manejar las peticiones del usuario.
+    """
+    
+    # Se solicita al usuario la información necesaria para realizar la consulta
     anotador = input("Ingrese el nombre del anotador que desea consultar\n")
     año_inicial = input("Ingrese el año inicial que desea consultar\n")
     mes_inicial = input("Ingrese el mes inicial que desea consultar\n")
@@ -159,9 +282,11 @@ def print_req_5(control):
     mes_final = input("Ingrese el mes final que desea consultar\n")
     dia_final = input("Ingrese el dia final que desea consultar\n")
     
+    # Se construyen las fechas en formato yyyy-mm-dd
     fecha_inicial = f"{año_inicial}-{mes_inicial}-{dia_inicial}"
     fecha_final = f"{año_final}-{mes_final}-{dia_final}"
     
+    # Se definen los encabezados de la tabla de resultados
     headers = {"scorer": "antoador",
                "date": "Fecha",
                "minute": "Minuto",
@@ -174,8 +299,10 @@ def print_req_5(control):
                 "penalty": "Penal",
                 "own_goal": "Autogol"}
     
+    # Se realiza la consulta y se obtienen los resultados
     n_jugadores, n_anotaciones, n_torneos, n_penales, n_autogoles, anotaciones = controller.req_5(control, anotador, fecha_inicial, fecha_final)
     
+    # Se muestran los resultados obtenidos
     print("\n=============== Datos del usuario ==================")
     print(f"\nAnotador: {anotador}")
     print(f"\nFecha inicial: {año_inicial}-{mes_inicial}-{dia_inicial}")
@@ -188,17 +315,30 @@ def print_req_5(control):
     print(f"\nSe encontraron {n_penales} penales")
     print(f"\nSe encontraron {n_autogoles} autogoles")
     
+    # Se muestra la tabla de resultados
     print_table(anotaciones, headers)
-                
         
 def print_req_6(control):
-    
+    """
+    Función que imprime los resultados de la consulta 6 en una tabla.
+    La consulta 6 permite consultar los equipos con mejor rendimiento en un torneo y año específico.
+
+    Args:
+    control: objeto de la clase Controlador que permite acceder a los métodos de consulta.
+
+    Returns:
+    None
+    """
+
+    # Se solicita al usuario el número de equipos, el torneo y el año a consultar
     n_equipos = input("Ingrese el numero de equipos que desea consultar\n")
     torneo = input("Ingrese el nombre del torneo que desea consultar\n")
     año = input("Ingrese el año que desea consultar\n")
     
+    # Se llama al método req_6 del controlador para obtener los equipos a mostrar y el número de equipos encontrados
     equipos_a_mostrar, equipos_encontrados = controller.req_6(control, n_equipos, torneo, año)
     
+    # Se definen los encabezados de la tabla
     headers = {"equipo": "Equipo",
                "puntos_totales": "Puntos totales",
                "diferencia_goles": "Diferencia de goles",
@@ -211,7 +351,7 @@ def print_req_6(control):
                "goles_favor": "Goles a favor",
                "goles_contra": "Goles en contra"}
     
-    
+    # Se imprimen los datos de la consulta
     print("\n=============== Datos del usuario ==================")
     print(f"\nTorneo: {torneo}")
     print(f"\nAño de consulta: {año}")
@@ -219,13 +359,22 @@ def print_req_6(control):
     print(f"\nFecha final: {año}-12-31")
     print(f"\nEquipos a mostrar: Top {n_equipos}")
     
-    
+    # Se imprimen los resultados de la consulta
     print("\n=============== Resultados ==================")
     print(f"Se encontraron {equipos_encontrados} equipos\n")
     print_table(equipos_a_mostrar, headers)
 
 def print_req_7(control):
+    """
+    Imprime los resultados de la consulta de la requisito 7 en una tabla.
+    La función solicita al usuario el nombre del torneo, el puntaje, la fecha inicial y la fecha final.
+    Luego llama a la función req_7 del controlador para obtener los resultados y los imprime en una tabla.
+
+    :param control: objeto de la clase Controlador
+    :return: None
+    """
     
+    # Diccionario con los nombres de las columnas de la tabla
     headers = {"jugador": "Jugador",
                "puntos": "Puntos",
                "goles": "Goles",
@@ -237,7 +386,7 @@ def print_req_7(control):
                 "goles_en_derrotas": "Goles en derrotas",
                 "ultimo_partido": "Ultimo partido"}
     
-    
+    # Solicita al usuario los datos de la consulta
     torneo = input("Ingrese el nombre del torneo que desea consultar\n")
     puntaje = input("Ingrese el puntaje que desea consultar\n")
     año_inicial = input("Ingrese el año inicial que desea consultar\n")
@@ -247,17 +396,21 @@ def print_req_7(control):
     mes_final = input("Ingrese el mes final que desea consultar\n")
     dia_final = input("Ingrese el dia final que desea consultar\n")
     
+    # Formatea las fechas en un string
     fecha_inicial = f"{año_inicial}-{mes_inicial}-{dia_inicial}"
     fecha_final = f"{año_final}-{mes_final}-{dia_final}"
     
+    # Llama a la función req_7 del controlador para obtener los resultados
     n_torneos, n_anotadores, n_anotadores_puntaje, n_goles, n_partidos, n_autogoles, n_penalties, jugadores = controller.req_7(control, torneo, puntaje, fecha_inicial, fecha_final)
     
+    # Imprime los datos de la consulta
     print("\n=============== Datos del usuario ==================")
     print(f"\nTorneo: {torneo}")
     print(f"\nJugadores con {puntaje} de puntaje")
     print(f"\nFecha inicial: {año_inicial}-{mes_inicial}-{dia_inicial}")
     print(f"\nFecha final: {año_final}-{mes_final}-{dia_final}")
     
+    # Imprime los resultados de la consulta
     print("\n=============== Resultados ==================")
     print(f"\nSe encontraron {n_torneos} torneos")
     print(f"\nSe encontraron {n_anotadores} anotadores en el torneo {torneo}")
@@ -266,6 +419,8 @@ def print_req_7(control):
     print(f"\nSe encontraron {n_autogoles} autogoles en el torneo {torneo}")
     print(f"\nSe encontraron {n_penalties} penales en el torneo {torneo}")
     print(f"\nSe encontraron {n_anotadores_puntaje} anotadores con {puntaje} de puntaje")
+    
+    # Imprime la tabla con los resultados
     print_table(jugadores, headers)
     
     
