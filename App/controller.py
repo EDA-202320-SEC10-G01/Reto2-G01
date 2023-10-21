@@ -60,12 +60,9 @@ def load_and_sort_data(control, tamaño, algoritmo):
     memoria_inicial = get_memory()
     
     if tamaño in list(tamaños.keys()):
+        
         tamaño = tamaños[tamaño]
-        
-        control["results"] = model.lt.newList("ARRAY_LIST")
-        control["shootouts"] = model.lt.newList("ARRAY_LIST")
-        control["goalscorers"] = model.lt.newList("ARRAY_LIST")
-        
+              
         load_data(control, tamaño, "results")
         load_data(control, tamaño, "shootouts")
         load_data(control, tamaño, "goalscorers")

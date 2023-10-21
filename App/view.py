@@ -103,7 +103,7 @@ def print_table(data, headers):
     #Se verifica que haya datos para mostrar
     
     if lt.size(data) == 0:
-        print("No se encontraron datos para mostrar")
+        print("\nNo se encontraron datos para mostrar")
         
     #Se crea una sublista de máximo 6 elementos para mostrar
 
@@ -556,7 +556,7 @@ if __name__ == "__main__":
         inputs = input('Seleccione una opción para continuar\n')
         if int(inputs) == 1:
             print("Cargando información de los archivos ....\n")
-            data = load_and_sort_data(control)
+            load_and_sort_data(control)
             data_size = controller.get_datasize(control)
             print_data(control)
             print(f'Se cargaron {data_size[0]} resultados, {data_size[1]} penales y {data_size[2]} goleadores\n')

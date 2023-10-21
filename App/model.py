@@ -64,8 +64,7 @@ def new_data_structs():
     football_data["hash_results"] = mp.newMap()
     football_data["hash_shootouts"] = mp.newMap()
     football_data["hash_goalscorers"] = mp.newMap()
-    football_data["hash_scorers"] = mp.newMap()
-        
+
     return football_data
 
 # Funciones para agregar informacion al modelo
@@ -88,40 +87,29 @@ def get_datasize(data_structs):
 
 def creating_hash(control):
     
-    hash_results = mp.newMap()
-    
     for i in lt.iterator(control["results"]):
         key = f'{i["date"]}-{i["home_team"]}-{i["away_team"]}'
         value = i
-        mp.put(hash_results, key, value)
-        
-    hash_shootouts = mp.newMap()
+        mp.put(control["hash_results"], key, value)
     
     for i in lt.iterator(control["shootouts"]):
         key = f'{i["date"]}-{i["home_team"]}-{i["away_team"]}'
         value = i
-        mp.put(hash_shootouts, key, value)
-        
-    hash_goalscorers = mp.newMap()
-    
+        mp.put(control["hash_shootouts"], key, value)
+            
     for i in lt.iterator(control["goalscorers"]):
         key = f'{i["date"]}-{i["home_team"]}-{i["away_team"]}'
         
-        if not mp.contains(hash_goalscorers, key):
+        if not mp.contains(control["hash_goalscorers"], key):
             temporal_list = lt.newList("ARRAY_LIST")
             lt.addLast(temporal_list, i)
-            mp.put(hash_goalscorers, key, temporal_list)
+            mp.put(control["hash_goalscorers"], key, temporal_list)
         
         else:
-            temporal_list = mp.get(hash_goalscorers, key)["value"]
+            temporal_list = mp.get(control["hash_goalscorers"], key)["value"]
             lt.addLast(temporal_list, i)
-            mp.put(hash_goalscorers, key, temporal_list)
-        
-
-    control["hash_results"] = hash_results
-    control["hash_shootouts"] = hash_shootouts
-    control["hash_goalscorers"] = hash_goalscorers
-    
+            mp.put(control["hash_goalscorers"], key, temporal_list)
+            
 #Requerimientos
 
 def req_1(control, n_partidos, equipo, condicion):
@@ -162,6 +150,7 @@ def req_2(control, n_goles, jugador):
     
     goles_jugador = lt.newList("ARRAY_LIST")
     jugadores = set()
+    n_penales = 0
     
     for jugador in lt.iterator(control["goalscorers"]):
         
@@ -180,7 +169,7 @@ def req_2(control, n_goles, jugador):
         goles_a_mostrar = lt.subList(goles_jugador, 1, int(n_goles))
         
     
-    return len(jugadores), lt.size(goles_jugador), goles_a_mostrar
+    return len(jugadores), lt.size(goles_jugador), n_penales, goles_jugador
         
     
 def req_3(control, equipo, fecha_inicial, fecha_final):
