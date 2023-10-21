@@ -120,10 +120,7 @@ def req_1(control, n_partidos, equipo, condicion):
     time = delta_time(first_time, last_time)
     memory = delta_memory(last_memory, first_memory)
     
-    print(f"Tiempo de ejecución: {time} ms")
-    print(f"Uso de memoria: {memory} KB")
-    
-    return model_response
+    return model_response, time , memory
 
 def req_2(control, n_goles, jugador):
     
@@ -137,11 +134,8 @@ def req_2(control, n_goles, jugador):
     
     time = delta_time(first_time, last_time)
     memory = delta_memory(last_memory, first_memory)
-    
-    print(f"Tiempo de ejecución: {time} ms")
-    print(f"Uso de memoria: {memory} KB")
-    
-    return model_response
+
+    return model_response, time , memory
 
 def req_3(control, equipo, fecha_inicial, fecha_final):
     
@@ -155,11 +149,8 @@ def req_3(control, equipo, fecha_inicial, fecha_final):
     
     time = delta_time(first_time, last_time)
     memory = delta_memory(last_memory, first_memory)
-    
-    print(f"Tiempo de ejecución: {time} ms")
-    print(f"Uso de memoria: {memory} KB")
-    
-    return model_response
+
+    return model_response, time , memory
 
 def req_4(control, torneo, fecha_inicial, fecha_final):
     
@@ -173,11 +164,8 @@ def req_4(control, torneo, fecha_inicial, fecha_final):
     
     time = delta_time(first_time, last_time)
     memory = delta_memory(last_memory, first_memory)
-    
-    print(f"Tiempo de ejecución: {time} ms")
-    print(f"Uso de memoria: {memory} KB")
-    
-    return model_response
+
+    return model_response, time , memory
 
 def req_5(control, anotador, fecha_inicial, fecha_final):
     
@@ -191,11 +179,8 @@ def req_5(control, anotador, fecha_inicial, fecha_final):
     
     time = delta_time(first_time, last_time)
     memory = delta_memory(last_memory, first_memory)
-    
-    print(f"Tiempo de ejecución: {time} ms")
-    print(f"Uso de memoria: {memory} KB")
-    
-    return model_response
+
+    return model_response, time , memory
 
 def req_6(control, n_equipos, torneo, año):
     
@@ -209,27 +194,23 @@ def req_6(control, n_equipos, torneo, año):
     
     time = delta_time(first_time, last_time)
     memory = delta_memory(last_memory, first_memory)
-    
-    print(f"Tiempo de ejecución: {time} ms")
-    print(f"Uso de memoria: {memory} KB")
-    
-    return model_response
+
+    return model_response, time , memory
 
 def req_7(control, torneo, puntaje, fecha_inicio, fecha_fin):
     
+    tracemalloc.start()
     first_time = get_time()
     first_memory = get_memory()
     model_response = model.req_7(control, torneo, puntaje, fecha_inicio, fecha_fin)
     last_time = get_time()
     last_memory = get_memory()
+    tracemalloc.stop()
     
     time = delta_time(first_time, last_time)
     memory = delta_memory(last_memory, first_memory)
-    
-    print(f"Tiempo de ejecución: {time} ms")
-    print(f"Uso de memoria: {memory} KB")
-    
-    return model_response
+
+    return model_response, time , memory
 
 #Funciones para manejar el tiempo y la memoria
 

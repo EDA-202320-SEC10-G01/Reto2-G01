@@ -116,28 +116,11 @@ def creating_hash(control):
             temporal_list = mp.get(hash_goalscorers, key)["value"]
             lt.addLast(temporal_list, i)
             mp.put(hash_goalscorers, key, temporal_list)
-            
-            
-    hash_scorers = mp.newMap()
-    
-    for i in lt.iterator(control["goalscorers"]):
-        key = i["scorer"]
-        
-        if not mp.contains(hash_scorers, key):
-            temporal_list = lt.newList("ARRAY_LIST")
-            lt.addLast(temporal_list, i)
-            mp.put(hash_scorers, key, temporal_list)
-        
-        else:
-            temporal_list = mp.get(hash_scorers, key)["value"]
-            lt.addLast(temporal_list, i)
-            mp.put(hash_scorers, key, temporal_list)
         
 
     control["hash_results"] = hash_results
     control["hash_shootouts"] = hash_shootouts
     control["hash_goalscorers"] = hash_goalscorers
-    control["hash_scorers"] = hash_scorers
     
 #Requerimientos
 
@@ -160,7 +143,7 @@ def req_1(control, n_partidos, equipo, condicion):
                 lt.addLast(partidos, resultado)
             
             elif condicion == "2":
-                if resultado["away_team"] == equipo or (resultado["home_team"] == equipo and resultado["neutral"] == "True"):
+                if resultado["away_team"] == equipo and resultado["neutral"] == "False":
                     lt.addLast(partidos, resultado)
             
             elif condicion == "1":
@@ -168,26 +151,37 @@ def req_1(control, n_partidos, equipo, condicion):
                     lt.addLast(partidos, resultado)
             
             
-    return len(equipos), partidos_equipo, lt.size(partidos), partidos
+    if int(n_partidos) > lt.size(partidos):
+        partidos_a_mostrar = lt.subList(partidos, 1, lt.size(partidos))
+    else:
+        partidos_a_mostrar = lt.subList(partidos, 1, int(n_partidos))
+            
+    return len(equipos), partidos_equipo, lt.size(partidos), partidos_a_mostrar
             
 def req_2(control, n_goles, jugador):
     
-    goles = mp.get(control["hash_scorers"], jugador)["value"]
-    jugadores = mp.size(control["hash_scorers"])
-    goles_jugador = lt.size(goles)
-    goles_penal = 0
+    goles_jugador = lt.newList("ARRAY_LIST")
+    jugadores = set()
     
-    for gol in goles:
-        if gol["penalty"] == "True":
-            goles_penal += 1
+    for jugador in lt.iterator(control["goalscorers"]):
+        
+        set.add(jugadores, jugador["scorer"])
+        
+        if jugador["scorer"] == jugador:
+            lt.addLast(goles_jugador, jugador)
+            if jugador["penalty"] == "True":
+                n_penales += 1
             
-    if n_goles > goles_jugador:
-        goles_a_mostrar = lt.subList(goles, 1, goles_jugador)
+            
+    if int(n_goles) > lt.size(goles_jugador):
+        goles_a_mostrar = lt.subList(goles_jugador, 1, lt.size(goles_jugador))
         
     else:
-        goles_a_mostrar = goles
+        goles_a_mostrar = lt.subList(goles_jugador, 1, int(n_goles))
         
-    return jugadores, goles_jugador, goles_penal, goles_a_mostrar
+    
+    return len(jugadores), lt.size(goles_jugador), goles_a_mostrar
+        
     
 def req_3(control, equipo, fecha_inicial, fecha_final):
     

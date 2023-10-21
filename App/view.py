@@ -93,7 +93,7 @@ def load_and_sort_data(control):
     print(f"\nMemoria utilizada: {memoria} kB")
     
 #Funciones para mostrar los datos    
-    
+      
 def print_table(data, headers):
     
     """
@@ -120,11 +120,11 @@ def print_table(data, headers):
      
     #Se imprimen los datos en forma de tabla 
         
-        print(f"De {lt.size(data)} elementos, se muestran los primeros y ultimos 3\n")
+        print(f"\nDe {lt.size(data)} elementos, se muestran los primeros y ultimos 3\n")
         print(tabulate(lt.iterator(combined_list), headers, tablefmt="fancy_grid"))
         
     else:
-        print(f"Se encontraron {lt.size(data)} elementos mostrados a continuacion\n")
+        print(f"\nSe encontraron {lt.size(data)} elementos mostrados a continuacion\n")
         print(tabulate(lt.iterator(data), headers, tablefmt="fancy_grid"))
               
 def print_data(control):
@@ -181,7 +181,7 @@ def print_req_1(control):
 
     #Se establecen los encabezados de la tabla
     
-    encabezados = {"date": "Fecha",
+    headers = {"date": "Fecha",
                    "home_team": "Equipo local",
                    "away_team": "Equipo visitante",
                    "home_score": "Marcador local",
@@ -193,7 +193,9 @@ def print_req_1(control):
     
     #Se llama la funcion del controlador
 
-    n_equipos, n_partidos_equipo, n_partidos_condicion, partidos = controller.req_1(control, n_partidos, equipo, condicion)
+    controller_response = controller.req_1(control, n_partidos, equipo, condicion)
+    
+    n_equipos, n_partidos_equipo, n_partidos_condicion, partidos = controller_response[0]
     
     #Se muestra la funcion al usuario
     
@@ -205,13 +207,108 @@ def print_req_1(control):
     print(f"\nCondicion: {condiciones[condicion]}")
     
     print("\n=============== Resultados ==================")
+    print(f"\nTiempo de ejecución del algoritmo: {controller_response[1]} ms")
+    print(f"\nUso de memoria del algoritmo: {controller_response[2]} KB")
     print(f"\nSe encontraron {n_equipos} equipos con informacion disponible")
     print(f"\nSe encontraron {n_partidos_equipo} partidos del equipo {equipo}")
     print(f"\nSe encontraron {n_partidos_condicion} partidos del equipo {equipo} en condicion de {condiciones[condicion]}")
     
     print_table(partidos, headers)
 
-
+def print_req_2(control):
+    """
+    Imprime los resultados del requerimiento 2 en la consola.
+    """
+    
+    #Se piden los datos al usuario
+    jugador = input("Ingrese el nombre del jugador que desea consultar\n")
+    n_goles = input("Ingrese el numero de goles mas recientes que desea consultar\n")
+    
+    #Define los encabezados para la tabla que se imprimirá
+    
+    headers =  {"date": "Fecha",
+                "home_team": "Equipo local",
+                "away_team": "Equipo visitante",
+                "team": "Equipo",
+                "scorer": "Anotador",
+                "minute": "Minuto",
+                "own_goal": "Autogol",
+                "penalty": "Penal"}
+    
+    #Consulta los datos y recupera los resultados
+    
+    controller_response = controller.req_2(control, n_goles, jugador)
+    
+    n_jugadores, n_goles_jugador, n_goles_jugador_penal, goles = controller_response[0]
+    
+    #Imprime la entrada del usuario y los resultados de la consulta}
+    print("\n=============== Datos del usuario ==================")
+    print(f"\nJugador: {jugador}")
+    print(f"\nNumero de goles recientes: {n_goles}")
+    
+    print("\n=============== Resultados ==================")
+    print(f"\nTiempo de ejecución del algoritmo: {controller_response[1]} ms")
+    print(f"\nUso de memoria del algoritmo: {controller_response[2]} KB")
+    print(f"\nSe encontraron {n_jugadores} jugadores")
+    print(f"\nSe encontraron {n_goles_jugador} goles del jugador {jugador}")
+    print(f"\nSe encontraron {n_goles_jugador_penal} goles de penal del jugador {jugador}")
+    
+    #Imprime la tabla de resultados de la consulta
+    print_table(goles, headers)
+    
+def print_req_3(control):
+    
+    # Solicita al usuario el equipo y el rango de fechas a consultar
+    equipo = input("Ingrese el nombre del equipo que desea consultar\n")
+    año_inicial = input("Ingrese el año inicial que desea consultar\n")
+    mes_inicial = input("Ingrese el mes inicial que desea consultar\n")
+    dia_inicial = input("Ingrese el dia inicial que desea consultar\n")
+    año_final = input("Ingrese el año final que desea consultar\n")
+    mes_final = input("Ingrese el mes final que desea consultar\n")
+    dia_final = input("Ingrese el dia final que desea consultar\n")
+    
+    # Formatea el rango de fechas como cadenas de texto
+    
+    fecha_inicial = f"{año_inicial}-{mes_inicial}-{dia_inicial}"
+    fecha_final = f"{año_final}-{mes_final}-{dia_final}"
+    
+    # Define los encabezados para la tabla que se imprimirá
+    
+    headers = {"date": "Fecha",
+                "home_team": "Equipo local",
+                "away_team": "Equipo visitante",
+                "home_score": "Marcador local",
+                "away_score": "Marcador visitante",
+                "tournament": "Torneo",
+                "city": "Ciudad",
+                "country": "País",
+                "neutral": "Neutral",
+                "penalties": "Penales",
+                "autogoles": "Autogoles"}
+    
+    # Consulta los datos y recupera los resultados
+    
+    controller_response = controller.req_3(control, equipo, fecha_inicial, fecha_final)
+    
+    n_equipos, n_partidos_equipo_local, n_partidos_equipo_visitante, partidos_equipo = controller_response[0]
+    
+    # Imprime la entrada del usuario y los resultados de la consulta
+    
+    print("\n=============== Datos del usuario ==================")
+    print(f"\nEquipo: {equipo}")
+    print(f"\nFecha inicial: {año_inicial}-{mes_inicial}-{dia_inicial}")
+    print(f"\nFecha final: {año_final}-{mes_final}-{dia_final}")
+    
+    print("\n=============== Resultados ==================")
+    print(f"\nTiempo de ejecución del algoritmo: {controller_response[1]} ms")
+    print(f"\nUso de memoria del algoritmo: {controller_response[2]} KB")
+    print(f"\nSe encontraron {n_equipos} equipos")
+    print(f"\nSe encontraron {n_partidos_equipo_local} partidos del equipo {equipo} como local")
+    print(f"\nSe encontraron {n_partidos_equipo_visitante} partidos del equipo {equipo} como visitante")
+    
+    # Imprime la tabla de resultados de la consulta
+    print_table(partidos_equipo, headers)
+                  
 def print_req_4(control):
     """
     Imprime los resultados del requerimiento 4 en la consola.
@@ -247,7 +344,10 @@ def print_req_4(control):
                 "ganador_penales": "Ganador penales"}
     
     # Consulta los datos y recupera los resultados
-    n_torneos, n_paises, n_ciudades, n_partidos_torneo, n_partidos_penales, partidos_torneo = controller.req_4(control, torneo, fecha_inicial, fecha_final)
+    
+    controller_response = controller.req_4(control, torneo, fecha_inicial, fecha_final)
+    
+    n_torneos, n_paises, n_ciudades, n_partidos_torneo, n_partidos_penales, partidos_torneo = controller_response[0]
     
     # Imprime la entrada del usuario y los resultados de la consulta
     print("\n=============== Datos del usuario ==================")
@@ -256,6 +356,8 @@ def print_req_4(control):
     print(f"\nFecha final: {año_final}-{mes_final}-{dia_final}")
     
     print("\n=============== Resultados ==================")
+    print(f"\nTiempo de ejecución del algoritmo: {controller_response[1]} ms")
+    print(f"\nUso de memoria del algoritmo: {controller_response[2]} KB")
     print(f"\nSe encontraron {n_torneos} torneos")
     print(f"\nSe encontraron {n_paises} paises en el torneo {torneo}")
     print(f"\nSe encontraron {n_ciudades} ciudades en el torneo {torneo}")
@@ -300,7 +402,10 @@ def print_req_5(control):
                 "own_goal": "Autogol"}
     
     # Se realiza la consulta y se obtienen los resultados
-    n_jugadores, n_anotaciones, n_torneos, n_penales, n_autogoles, anotaciones = controller.req_5(control, anotador, fecha_inicial, fecha_final)
+    
+    controller_response = controller.req_5(control, anotador, fecha_inicial, fecha_final)
+    
+    n_jugadores, n_anotaciones, n_torneos, n_penales, n_autogoles, anotaciones = controller_response[0]
     
     # Se muestran los resultados obtenidos
     print("\n=============== Datos del usuario ==================")
@@ -309,6 +414,8 @@ def print_req_5(control):
     print(f"\nFecha final: {año_final}-{mes_final}-{dia_final}")
     
     print("\n=============== Resultados ==================")
+    print(f"\nTiempo de ejecución del algoritmo: {controller_response[1]} ms")
+    print(f"\nUso de memoria del algoritmo: {controller_response[2]} KB")
     print(f"\nSe encontraron {n_jugadores} jugadores")
     print(f"\nSe encontraron {n_anotaciones} anotaciones por parte de {anotador}")
     print(f"\nSe encontraron {n_torneos} torneos donde anoto {anotador}")
@@ -336,7 +443,10 @@ def print_req_6(control):
     año = input("Ingrese el año que desea consultar\n")
     
     # Se llama al método req_6 del controlador para obtener los equipos a mostrar y el número de equipos encontrados
-    equipos_a_mostrar, equipos_encontrados = controller.req_6(control, n_equipos, torneo, año)
+    
+    controller_response = controller.req_6(control, n_equipos, torneo, año)
+    
+    equipos_a_mostrar, equipos_encontrados = controller_response[0]
     
     # Se definen los encabezados de la tabla
     headers = {"equipo": "Equipo",
@@ -361,6 +471,8 @@ def print_req_6(control):
     
     # Se imprimen los resultados de la consulta
     print("\n=============== Resultados ==================")
+    print(f"\nTiempo de ejecución del algoritmo: {controller_response[1]} ms")
+    print(f"\nUso de memoria del algoritmo: {controller_response[2]} KB")
     print(f"Se encontraron {equipos_encontrados} equipos\n")
     print_table(equipos_a_mostrar, headers)
 
@@ -401,7 +513,10 @@ def print_req_7(control):
     fecha_final = f"{año_final}-{mes_final}-{dia_final}"
     
     # Llama a la función req_7 del controlador para obtener los resultados
-    n_torneos, n_anotadores, n_anotadores_puntaje, n_goles, n_partidos, n_autogoles, n_penalties, jugadores = controller.req_7(control, torneo, puntaje, fecha_inicial, fecha_final)
+    
+    controller_response = controller.req_7(control, torneo, puntaje, fecha_inicial, fecha_final)
+    
+    n_torneos, n_anotadores, n_anotadores_puntaje, n_goles, n_partidos, n_autogoles, n_penalties, jugadores = controller_response[0]
     
     # Imprime los datos de la consulta
     print("\n=============== Datos del usuario ==================")
@@ -412,6 +527,8 @@ def print_req_7(control):
     
     # Imprime los resultados de la consulta
     print("\n=============== Resultados ==================")
+    print(f"\nTiempo de ejecución del algoritmo: {controller_response[1]} ms")
+    print(f"\nUso de memoria del algoritmo: {controller_response[2]} KB")
     print(f"\nSe encontraron {n_torneos} torneos")
     print(f"\nSe encontraron {n_anotadores} anotadores en el torneo {torneo}")
     print(f"\nSe encontraron {n_partidos} partidos en el torneo {torneo}")
@@ -422,7 +539,6 @@ def print_req_7(control):
     
     # Imprime la tabla con los resultados
     print_table(jugadores, headers)
-    
     
 
 # Se crea el controlador asociado a la vista
