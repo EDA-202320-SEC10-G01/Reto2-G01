@@ -152,13 +152,13 @@ def req_2(control, n_goles, jugador):
     jugadores = set()
     n_penales = 0
     
-    for jugador in lt.iterator(control["goalscorers"]):
+    for player in lt.iterator(control["goalscorers"]):
         
-        set.add(jugadores, jugador["scorer"])
+        set.add(jugadores, player["scorer"])
         
-        if jugador["scorer"] == jugador:
-            lt.addLast(goles_jugador, jugador)
-            if jugador["penalty"] == "True":
+        if player["scorer"] == jugador:
+            lt.addLast(goles_jugador, player)
+            if player["penalty"] == "True":
                 n_penales += 1
             
             
@@ -197,9 +197,9 @@ def req_3(control, equipo, fecha_inicial, fecha_final):
                     if i["team"] == equipo and i["penalty"] == "True":
                         resultado["penalties"] = "Verdadero"
             
-            if resultado["home_team"] == equipo:
+            if resultado["home_team"] == equipo and resultado["neutral"] == "False":
                 partidos_local += 1
-            else:
+            elif resultado["away_team"] == equipo and resultado["neutral"] == "False":
                 partidos_visitante += 1
                 
             lt.addLast(partidos_por_equipo, resultado)
@@ -216,6 +216,8 @@ def req_4(control, torneo, fecha_inicial, fecha_final):
     
     for resultado in lt.iterator(control["results"]):
         
+        torneos.add(resultado["tournament"])
+        
         if resultado["tournament"] == torneo and intervalo(fecha_inicial, fecha_final, resultado["date"]):
             
             
@@ -227,9 +229,7 @@ def req_4(control, torneo, fecha_inicial, fecha_final):
                 resultado["penalties"] = "Verdadero"
                 resultado["ganador_penales"] = mp.get(control["hash_shootouts"], f'{resultado["date"]}-{resultado["home_team"]}-{resultado["away_team"]}')['value']["winner"]
                 partidos_con_penales += 1
-            
-            if resultado["tournament"] not in torneos:
-                torneos.add(resultado["tournament"])
+        
                 
             if resultado["country"] not in paises:
                 paises.add(resultado["country"])

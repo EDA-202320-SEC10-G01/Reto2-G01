@@ -48,7 +48,7 @@ def new_controller():
     return controller.new_controller()
 
 def print_menu():
-    print("Bienvenido")
+    print("\nBienvenido")
     print("1- Cargar información")
     print("2- Listar los ultimos N partidos de unequipo segun su condicion")
     print("3- Listar los primeros N goles anotados por un jugador")
@@ -93,12 +93,14 @@ def load_and_sort_data(control):
     print(f"\nMemoria utilizada: {memoria} kB")
     
 #Funciones para mostrar los datos    
+
       
 def print_table(data, headers):
     
     """
     Imprime los datos en forma de tabla
     """
+    
     
     #Se verifica que haya datos para mostrar
     
@@ -290,7 +292,7 @@ def print_req_3(control):
     
     controller_response = controller.req_3(control, equipo, fecha_inicial, fecha_final)
     
-    n_equipos, n_partidos_equipo_local, n_partidos_equipo_visitante, partidos_equipo = controller_response[0]
+    n_equipos, n_partidos_equipo_local, n_partidos_equipo_visitante, partidos_equipo, n_partidos_equipo = controller_response[0]
     
     # Imprime la entrada del usuario y los resultados de la consulta
     
@@ -303,6 +305,7 @@ def print_req_3(control):
     print(f"\nTiempo de ejecución del algoritmo: {controller_response[1]} ms")
     print(f"\nUso de memoria del algoritmo: {controller_response[2]} KB")
     print(f"\nSe encontraron {n_equipos} equipos")
+    print(f"\nSe encontraron {n_partidos_equipo} partidos del equipo {equipo}")
     print(f"\nSe encontraron {n_partidos_equipo_local} partidos del equipo {equipo} como local")
     print(f"\nSe encontraron {n_partidos_equipo_visitante} partidos del equipo {equipo} como visitante")
     
@@ -358,7 +361,7 @@ def print_req_4(control):
     print("\n=============== Resultados ==================")
     print(f"\nTiempo de ejecución del algoritmo: {controller_response[1]} ms")
     print(f"\nUso de memoria del algoritmo: {controller_response[2]} KB")
-    print(f"\nSe encontraron {n_torneos} torneos")
+    print(f"\nSe encontraron {n_torneos} torneos con informacion disponible")
     print(f"\nSe encontraron {n_paises} paises en el torneo {torneo}")
     print(f"\nSe encontraron {n_ciudades} ciudades en el torneo {torneo}")
     print(f"\nSe encontraron {n_partidos_torneo} partidos en el torneo {torneo}")
