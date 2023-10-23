@@ -545,7 +545,69 @@ def print_req_7(control):
     
     # Imprime la tabla con los resultados
     print_table(jugadores, headers)
+
+def print_req_8(control):
     
+    headers = {"año": "Año",
+               "partidos_jugados": "Partidos jugados",
+               "puntos": "Puntos",
+                "diferencia_goles": "Diferencia de goles",
+                "goles_penal": "Goles de penal",
+                "autogoles": "Autogoles",
+                "victorias": "Victorias",
+                "empates": "Empates",
+                "derrotas": "Derrotas",
+                "goles_favor": "Goles a favor",
+                "goles_contra": "Goles en contra",
+                "jugadores": "Maximo anotador"}
+    
+    headers2 = {"date": "Fecha",
+                "home_team": "Equipo local",
+                "away_team": "Equipo visitante",
+                "home_score": "Marcador local",
+                "away_score": "Marcador visitante",
+                "tournament": "Torneo",
+                "city": "Ciudad",
+                "country": "País",
+                "neutral": "Neutral"}
+    
+    equipo = input("Ingrese el nombre del equipo que desea consultar\n")
+    año_inicial = input("Ingrese el año inicial que desea consultar\n")
+    año_final = input("Ingrese el año final que desea consultar\n")
+    
+    fecha_inicial = f"{año_inicial}-01-01"
+    fecha_final = f"{año_final}-12-31"
+
+    controller_response = controller.req_8(control, equipo, fecha_inicial, fecha_final)
+    
+    lista_partidos, ultimo_partido, partidos_totales, partidos_local, partidos_visistante, fecha_partido_antiguo = controller_response[0]
+    
+    tabulate_column(lista_partidos, "jugadores")
+    
+    print("\n=============== Datos del usuario ==================")
+    print(f"\nEquipo: {equipo}")
+    print(f"\nAño inicial: {año_inicial}")
+    print(f"\nAño final: {año_final}")
+    print(f"\nFecha inicial: {fecha_inicial}")
+    print(f"\nFecha final: {fecha_final}")
+    
+    print("\n=============== Resultados ==================")
+    print(f"\nTiempo de ejecución del algoritmo: {controller_response[1]} ms")
+    print(f"\nUso de memoria del algoritmo: {controller_response[2]} KB")
+    print(f"\nAños a consultar: {int(año_final) - int(año_inicial) + 1}")
+    print(f"\nPartidos totales: {partidos_totales}")
+    print(f"\nPartidos como local: {partidos_local}")
+    print(f"\nPartidos como visitante: {partidos_visistante}")
+    print(f"\nFecha del partido mas antiguo: {fecha_partido_antiguo}")
+    
+    print(f"\n\nPartido mas reciente:")
+    print(tabulate(ultimo_partido.items(), tablefmt="fancy_grid"))
+    
+    print(f"\n\nEstadisticas por año:")
+    print_table(lista_partidos, headers)
+    
+
+
 
 # Se crea el controlador asociado a la vista
 control = new_controller()

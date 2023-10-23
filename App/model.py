@@ -658,7 +658,210 @@ def req_7(control, torneo, puntaje):
             
                 
     return len(torneos), lt.size(lista_jugadores), n_anotadores_puntaje, n_goles, len(partidos), n_autogoles, n_penalties, jugadores_puntos       
+ 
+def req_8(control, equipo, fecha_inicial, fecha_final):
     
+    def crear_jugadores(control, partido, equipo):
+        
+        llave = f'{partido["date"]}-{partido["home_team"]}-{partido["away_team"]}'
+        
+        jugadores_stats = dict()
+        
+        if mp.contains(control["hash_goalscorers"], llave):
+                
+                for i in lt.iterator(mp.get(control["hash_goalscorers"], llave)["value"]):
+                    
+                    if i["team"] == equipo:
+                    
+                        if i["scorer"] in jugadores_stats:
+                            jugadores_stats[i["scorer"]]["Goles"] += 1
+                            jugadores_stats[i["scorer"]]["Partidos"] += 1
+                            jugadores_stats[i["scorer"]]["Minuto Promedio"] += float(i["minute"])
+                            
+                        else:
+                            jugadores_stats[i["scorer"]] = {"Jugador": i["scorer"],
+                                                            "Goles": 1,
+                                                            "Partidos": 1,
+                                                            "Minuto Promedio": float(i["minute"])}
+        
+        return jugadores_stats
+    
+    def puntos_obtenidos(partido, equipo):
+        
+        if partido["home_team"] == equipo:
+            if int(partido["home_score"]) > int(partido["away_score"]):
+                return 3, [1, 0, 0]
+            elif int(partido["home_score"]) == int(partido["away_score"]):
+                return 1, [0, 1, 0]
+            else:
+                return 0, [0, 0, 1]
+        else:
+            if int(partido["home_score"]) < int(partido["away_score"]):
+                return 3, [1, 0, 0]
+            elif int(partido["home_score"]) == int(partido["away_score"]):
+                return 1, [0, 1, 0]
+            else:
+                return 0, [0, 0, 1]
+            
+    def calcular_goles_tipo(control, partido, equipo):
+        
+        llave = f'{partido["date"]}-{partido["home_team"]}-{partido["away_team"]}'
+        
+        if mp.contains(control["hash_goalscorers"], llave):
+            
+            lista_goles = mp.get(control["hash_goalscorers"], llave)["value"]
+            
+            penalty_goals = 0
+            own_goals = 0
+            
+            for i in lt.iterator(lista_goles):
+                if i["team"] == equipo and i["penalty"] == "True":
+                    penalty_goals += 1
+                elif i["team"] == equipo and i["own_goal"] == "True":
+                    own_goals += 1
+            return penalty_goals, own_goals          
+        else:
+            return 0, 0
+    
+    def crear_informacion(control, partido, equipo):
+        
+        
+        if equipo == partido["home_team"]:
+            info = {"año": partido["date"].split("-")[0],
+                    "partidos_jugados": 1,
+                    "puntos": puntos_obtenidos(partido, equipo)[0],
+                    "diferencia_goles": int(partido["home_score"]) - int(partido["away_score"]),
+                    "goles_penal": calcular_goles_tipo(control, partido, equipo)[0],
+                    "autogoles": calcular_goles_tipo(control, partido, equipo)[1],
+                    "victorias": puntos_obtenidos(partido, equipo)[1][0],
+                    "empates": puntos_obtenidos(partido, equipo)[1][1],
+                    "derrotas": puntos_obtenidos(partido, equipo)[1][2],
+                    "goles_favor": int(partido["home_score"]) - calcular_goles_tipo(control, partido, partido["away_team"])[1],
+                    "goles_contra": int(partido["away_score"]),
+                    "jugadores": crear_jugadores(control, partido, equipo)}
+            
+        else:
+            info = {"año": partido["date"].split("-")[0],
+                    "partidos_jugados": 1,
+                    "puntos": puntos_obtenidos(partido, equipo)[0],
+                    "diferencia_goles": int(partido["away_score"]) - int(partido["home_score"]),
+                    "goles_penal": calcular_goles_tipo(control, partido, equipo)[0],
+                    "autogoles": calcular_goles_tipo(control, partido, equipo)[1],
+                    "victorias": puntos_obtenidos(partido, equipo)[1][0],
+                    "empates": puntos_obtenidos(partido, equipo)[1][1],
+                    "derrotas": puntos_obtenidos(partido, equipo)[1][2],
+                    "goles_favor": int(partido["away_score"]) - calcular_goles_tipo(control, partido, partido["home_team"])[1],
+                    "goles_contra": int(partido["home_score"]),
+                    "jugadores": crear_jugadores(control, partido, equipo)}
+            
+        return info
+                 
+    def modificar_informacion(nueva_info, info):
+        
+        info["puntos"] += nueva_info["puntos"]
+        info["partidos_jugados"] += nueva_info["partidos_jugados"]
+        info["diferencia_goles"] += nueva_info["diferencia_goles"]
+        info["goles_penal"] += nueva_info["goles_penal"]
+        info["autogoles"] += nueva_info["autogoles"]
+        info["victorias"] += nueva_info["victorias"]
+        info["empates"] += nueva_info["empates"]
+        info["derrotas"] += nueva_info["derrotas"]
+        info["goles_favor"] += nueva_info["goles_favor"]
+        info["goles_contra"] += nueva_info["goles_contra"]
+        
+        for i in nueva_info["jugadores"].keys():
+            
+            if i in info["jugadores"]:
+                info["jugadores"][i]["Goles"] += nueva_info["jugadores"][i]["Goles"]
+                info["jugadores"][i]["Partidos"] += nueva_info["jugadores"][i]["Partidos"]
+                info["jugadores"][i]["Minuto Promedio"] += nueva_info["jugadores"][i]["Minuto Promedio"]
+                
+            else:
+                info["jugadores"][i] = nueva_info["jugadores"][i]
+                
+        return info
+     
+    def sort_criteria_req_8(data1, data2):
+        
+        if data1["puntos"] > data2["puntos"]:
+            return True
+        elif data1["puntos"] == data2["puntos"]:
+            if data1["diferencia_goles"] > data2["diferencia_goles"]:
+                return True
+            elif data1["diferencia_goles"] == data2["diferencia_goles"]:
+                if info1["goles_penal"] > info2["goles_penal"]:
+                    return True
+                elif info1["goles_penal"] == info2["goles_penal"]:
+                    if info1["partidos_jugados"] < info2["partidos_jugados"]:
+                        return True
+                    elif info1["partidos_jugados"] == info2["partidos_jugados"]:
+                        if info1["autogoles"] < info2["autogoles"]:
+                            return True
+                        else:
+                            return False
+                    else:
+                        return False
+                else:
+                    return False
+            else:
+                return False
+        else:
+            return False
+    
+    lista_por_año = lt.newList("ARRAY_LIST")
+    mapa_indices = mp.newMap()
+    partidos_local = 0
+    partidos_visitante = 0
+    partidos_totales = 0
+    ultimo_partido = None
+    fecha_partido_antiguo = None
+    
+    for resultado in lt.iterator(control["results"]):
+        
+        if (resultado["home_team"] == equipo or resultado["away_team"] == equipo) and intervalo(fecha_inicial, fecha_final, resultado["date"]) and resultado["tournament"] != "Friendly":
+            
+            fecha_partido_antiguo = resultado["date"]
+            
+            if mp.contains(mapa_indices, resultado["date"].split("-")[0]):
+                
+                indice = mp.get(mapa_indices, resultado["date"].split("-")[0])["value"]
+                info = lt.getElement(lista_por_año, indice)
+                nueva_info = modificar_informacion(crear_informacion(control, resultado, equipo), info)
+                lt.changeInfo(lista_por_año, indice, nueva_info)
+                
+            else:
+                lt.addLast(lista_por_año, crear_informacion(control, resultado, equipo))
+                mp.put(mapa_indices, resultado["date"].split("-")[0], lt.size(lista_por_año))
+                
+                
+            if resultado["home_team"] == equipo and resultado["neutral"] == "False":
+                partidos_local += 1
+            
+            elif resultado["away_team"] == equipo and resultado["neutral"] == "False":
+                partidos_visitante += 1
+                
+            partidos_totales += 1
+            
+            if ultimo_partido == None:
+                ultimo_partido = resultado
+            
+                        
+    merg.sort(lista_por_año, sort_criteria_req_8)
+            
+    for año in lt.iterator(lista_por_año):
+        if len(año["jugadores"]) > 0:
+            max_jugador = max(año["jugadores"], key=lambda k: año["jugadores"][k]['Goles'])
+            año["jugadores"] = año["jugadores"][max_jugador]
+            año["jugadores"]["Minuto Promedio"] = round(año["jugadores"]["Minuto Promedio"] / año["jugadores"]["Goles"],2)
+            
+        else:
+            año["jugadores"] = {"jugador": "No disponible",
+                                                "Goles": 0,
+                                                "Partidos": 0,
+                                                "Minuto Promedio": 0}
+    
+    return lista_por_año, ultimo_partido, partidos_totales, partidos_local, partidos_visitante, fecha_partido_antiguo     
+             
 #Funcion de ordenamiento y sus auxiliares
     
 def sort(control, algoritmo):
