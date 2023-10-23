@@ -574,7 +574,6 @@ def req_7(control, torneo, puntaje):
         info["goles_en_victorias"] += nueva_info["goles_en_victorias"]
         info["goles_en_empates"] += nueva_info["goles_en_empates"]
         info["goles_en_derrotas"] += nueva_info["goles_en_derrotas"]
-        info["ultimo_partido"] = nueva_info["ultimo_partido"]
     
         return info
     
@@ -789,13 +788,13 @@ def req_8(control, equipo, fecha_inicial, fecha_final):
             if data1["diferencia_goles"] > data2["diferencia_goles"]:
                 return True
             elif data1["diferencia_goles"] == data2["diferencia_goles"]:
-                if info1["goles_penal"] > info2["goles_penal"]:
+                if data1["goles_penal"] > data2["goles_penal"]:
                     return True
-                elif info1["goles_penal"] == info2["goles_penal"]:
-                    if info1["partidos_jugados"] < info2["partidos_jugados"]:
+                elif data1["goles_penal"] == data2["goles_penal"]:
+                    if data1["partidos_jugados"] < data2["partidos_jugados"]:
                         return True
-                    elif info1["partidos_jugados"] == info2["partidos_jugados"]:
-                        if info1["autogoles"] < info2["autogoles"]:
+                    elif data1["partidos_jugados"] == data2["partidos_jugados"]:
+                        if data1["autogoles"] < data2["autogoles"]:
                             return True
                         else:
                             return False
