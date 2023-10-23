@@ -169,8 +169,7 @@ def req_2(control, n_goles, jugador):
         goles_a_mostrar = lt.subList(goles_jugador, 1, int(n_goles))
         
     
-    return len(jugadores), lt.size(goles_jugador), n_penales, goles_jugador
-        
+    return len(jugadores), lt.size(goles_jugador), n_penales, goles_a_mostrar        
     
 def req_3(control, equipo, fecha_inicial, fecha_final):
     
@@ -251,8 +250,7 @@ def req_5(control, anotador, fecha_inicial, fecha_final):
     
     for gol in lt.iterator(control["goalscorers"]):
         
-        if not gol["scorer"] in jugadores:
-            jugadores.add(gol["scorer"])
+        jugadores.add(gol["scorer"])
         
         if gol["scorer"] == anotador and intervalo(fecha_inicial, fecha_final, gol["date"]):
             if not mp.contains(control["hash_results"], f'{gol["date"]}-{gol["home_team"]}-{gol["away_team"]}'):
@@ -274,17 +272,41 @@ def req_5(control, anotador, fecha_inicial, fecha_final):
             if gol["own_goal"] == "True":
                 autogoles += 1
                 
-            if not gol["tournament"] in torneos:
-                torneos.add(gol["tournament"])
+            torneos.add(gol["tournament"])
             
                
             
-    return len(jugadores), len(goles), len(torneos), penales, autogoles, goles
+    return len(jugadores), lt.size(goles), len(torneos), penales, autogoles, goles
 
 def req_6(control, n_equipos, torneo, año):
     
     #Funciones auxiliares
     
+    def crear_jugadores(control, partido, equipo):
+        
+        jugadores_stats = dict()
+              
+        llave = f'{partido["date"]}-{partido["home_team"]}-{partido["away_team"]}'
+        
+        if mp.contains(control["hash_goalscorers"], llave):
+            
+            for i in lt.iterator(mp.get(control["hash_goalscorers"], llave)["value"]):
+                
+                if i["team"] == equipo:
+                
+                    if i["scorer"] in jugadores_stats:
+                        jugadores_stats[i["scorer"]]["Goles"] += 1
+                        jugadores_stats[i["scorer"]]["Partidos"] += 1
+                        jugadores_stats[i["scorer"]]["Minuto Promedio"] += float(i["minute"])
+                        
+                    else:
+                        jugadores_stats[i["scorer"]] = {"Jugador": i["scorer"],
+                                                        "Goles": 1,
+                                                        "Partidos": 1,
+                                                        "Minuto Promedio": float(i["minute"])}
+                        
+        return jugadores_stats
+                  
     def puntos_obtenidos(partido, equipo):
         
         if equipo == partido["home_team"]:
@@ -306,7 +328,6 @@ def req_6(control, n_equipos, torneo, año):
     def calcular_goles_tipo(control, partido, equipo):
         
         llave = f'{partido["date"]}-{partido["home_team"]}-{partido["away_team"]}'
-        
         
         
         if mp.contains(control["hash_goalscorers"], llave):
@@ -337,7 +358,8 @@ def req_6(control, n_equipos, torneo, año):
                       "empates": puntos_obtenidos(partido, partido["home_team"])[1][1],
                       "derrotas": puntos_obtenidos(partido, partido["home_team"])[1][2],
                       "goles_favor": int(partido["home_score"]),
-                      "goles_contra": int(partido["away_score"])}
+                      "goles_contra": int(partido["away_score"]),
+                      "jugadores": crear_jugadores(control, partido, partido["home_team"])}
         
         equipo_dos = {"equipo": partido["away_team"],
                       "puntos_totales": puntos_obtenidos(partido, partido["away_team"])[0],
@@ -349,7 +371,8 @@ def req_6(control, n_equipos, torneo, año):
                       "empates": puntos_obtenidos(partido, partido["away_team"])[1][1],
                       "derrotas": puntos_obtenidos(partido, partido["away_team"])[1][2],
                       "goles_favor": int(partido["away_score"]),
-                      "goles_contra": int(partido["home_score"])}
+                      "goles_contra": int(partido["home_score"]),
+                      "jugadores": crear_jugadores(control, partido, partido["away_team"])}
         
         return equipo_uno, equipo_dos
         
@@ -366,6 +389,16 @@ def req_6(control, n_equipos, torneo, año):
         info["goles_favor"] += nueva_info["goles_favor"]
         info["goles_contra"] += nueva_info["goles_contra"]
         
+        for i in nueva_info["jugadores"].keys():
+            
+            if i in info["jugadores"]:
+                info["jugadores"][i]["Goles"] += nueva_info["jugadores"][i]["Goles"]
+                info["jugadores"][i]["Partidos"] += nueva_info["jugadores"][i]["Partidos"]
+                info["jugadores"][i]["Minuto Promedio"] += nueva_info["jugadores"][i]["Minuto Promedio"]
+                
+            else:
+                info["jugadores"][i] = nueva_info["jugadores"][i]
+           
         return info   
         
     def sort_criteria_equipos(data1, data2):
@@ -402,58 +435,75 @@ def req_6(control, n_equipos, torneo, año):
     #Implementacion algoritmo principal
     
     torneos = set()
-    ciudades = set()
+    ciudades = {}
     paises = set()
     partidos = 0
     
     for resultado in lt.iterator(control["results"]):
         
-        if resultado["tournament"] == torneo and resultado["date"].split("-")[0] == año:
+        if resultado["date"].split("-")[0] == año:
             
-            equipo_uno, equipo_dos = crear_informacion(control, resultado)
+            if resultado["tournament"] == torneo:
             
-            if not mp.contains(mapa_indices, equipo_uno["equipo"]):
-                lt.addLast(equipos, equipo_uno)
-                mp.put(mapa_indices, equipo_uno["equipo"], lt.size(equipos))
+                equipo_uno, equipo_dos = crear_informacion(control, resultado)
                 
-            else:
-                indice = mp.get(mapa_indices, equipo_uno["equipo"])["value"]
-                info = lt.getElement(equipos, indice)
-                nueva_info = modificar_informacion(equipo_uno, info)
-                lt.changeInfo(equipos, indice, nueva_info)
+                if not mp.contains(mapa_indices, equipo_uno["equipo"]):
+                    lt.addLast(equipos, equipo_uno)
+                    mp.put(mapa_indices, equipo_uno["equipo"], lt.size(equipos))
+                    
+                else:
+                    indice = mp.get(mapa_indices, equipo_uno["equipo"])["value"]
+                    info = lt.getElement(equipos, indice)
+                    nueva_info = modificar_informacion(equipo_uno, info)
+                    lt.changeInfo(equipos, indice, nueva_info)
+                    
+                if not mp.contains(mapa_indices, equipo_dos["equipo"]):
+                    lt.addLast(equipos, equipo_dos)
+                    mp.put(mapa_indices, equipo_dos["equipo"], lt.size(equipos))
                 
-            if not mp.contains(mapa_indices, equipo_dos["equipo"]):
-                lt.addLast(equipos, equipo_dos)
-                mp.put(mapa_indices, equipo_dos["equipo"], lt.size(equipos))
-            
-            else:
-                indice = mp.get(mapa_indices, equipo_dos["equipo"])["value"]
-                info = lt.getElement(equipos, indice)
-                nueva_info = modificar_informacion(equipo_dos, info)
-                lt.changeInfo(equipos, indice, nueva_info)
+                else:
+                    indice = mp.get(mapa_indices, equipo_dos["equipo"])["value"]
+                    info = lt.getElement(equipos, indice)
+                    nueva_info = modificar_informacion(equipo_dos, info)
+                    lt.changeInfo(equipos, indice, nueva_info)
                 
-            if not resultado["tournament"] in torneos:
-                torneos.add(resultado["tournament"])
-            
-            if not resultado["city"] in ciudades:
-                ciudades.add(resultado["city"])
-            
-            if not resultado["country"] in paises:
+                    
+                if resultado["city"] not in ciudades:
+                    ciudades[resultado["city"]] = 1
+                else:
+                    ciudades[resultado["city"]] += 1
+                    
+                
                 paises.add(resultado["country"])
                 
-                
+                    
+            torneos.add(resultado["tournament"])        
+        
+    for equipo in lt.iterator(equipos):
+        
+        if len(equipo["jugadores"]) > 0:
+            max_jugador = max(equipo["jugadores"], key=lambda k: equipo["jugadores"][k]['Goles'])
+            equipo["jugadores"] = equipo["jugadores"][max_jugador]
+            equipo["jugadores"]["Minuto Promedio"] = round(equipo["jugadores"]["Minuto Promedio"] / equipo["jugadores"]["Goles"],2)
+ 
+        else:
+            equipo["jugadores"] = {"jugador": "No disponible",
+                                              "Goles": 0,
+                                              "Partidos": 0,
+                                              "Minuto Promedio": 0}
+            
     merg.sort(equipos, sort_criteria_equipos)
-    equipos_encontrados = lt.size(equipos)
+
     
-    if equipos_encontrados >= int(n_equipos):
-        equipos_a_mostrar = lt.subList(equipos, 1, int(n_equipos))
+    if int(n_equipos) > lt.size(equipos):
+        equipos_a_mostrar = lt.subList(equipos, 1, lt.size(equipos))
     
     else:
-        equipos_a_mostrar = equipos
+        equipos_a_mostrar = lt.subList(equipos, 1, int(n_equipos))
         
-    return equipos_a_mostrar, equipos_encontrados, len(torneos), partidos, len(ciudades), len(paises)
-        
-def req_7(control, torneo, puntaje, fecha_inicio, fecha_fin):
+    return equipos_a_mostrar, lt.size(equipos), len(torneos), len(ciudades), len(paises), max(ciudades, key=ciudades.get)
+
+def req_7(control, torneo, puntaje):
     
     def check_penalty(gol):
         
@@ -574,7 +624,7 @@ def req_7(control, torneo, puntaje, fecha_inicio, fecha_fin):
             partido = mp.get(control["hash_results"], llave)["value"]
             gol_torneo = partido["tournament"]
         
-            if gol_torneo == torneo and intervalo(fecha_inicio, fecha_fin, gol["date"]):
+            if gol_torneo == torneo:
                 
                 if not mp.contains(mapa_indices, gol["scorer"]):
                     lt.addLast(lista_jugadores, crear_informacion(control, gol))

@@ -50,13 +50,13 @@ def new_controller():
 def print_menu():
     print("\nBienvenido")
     print("1- Cargar información")
-    print("2- Listar los ultimos N partidos de unequipo segun su condicion")
+    print("2- Listar los ultimos N partidos de un equipo segun su condición")
     print("3- Listar los primeros N goles anotados por un jugador")
-    print("4- Consultar los partidos que disputo un equipo durante un periodo especifico")
-    print("5- Consultar los partidos relacionados con un torneo durante un periodo especifico")
-    print("6- Consultar las anotaciones de un jugador durante un periodo especifico")
-    print("7- EClasificar los N mejores equipos del año dentro de un torno especifico")
-    print("8- Clasificar los N mejores anotadores en partidos oficiales dentro de un periodo especifico")
+    print("4- Consultar los partidos que disputó un equipo durante un periodo")
+    print("5- Consultar los partidos relacionados con un torneo durante un periodo")
+    print("6- Consultar las anotaciones de un jugador durante un periodo")
+    print("7- Clasificar los N mejores equipos del año dentro de un torneo")
+    print("8- Clasificar los N mejores anotadores en partidos oficiales dentro de un periodo")
     print("9- Consultar el desempeño historico de una seleccion en torneos oficiales")
     print("0- Salir")
 
@@ -94,7 +94,11 @@ def load_and_sort_data(control):
     
 #Funciones para mostrar los datos    
 
-      
+def tabulate_column(data, column):
+    
+    for i in lt.iterator(data):
+        i[column] = tabulate(i[column].items())
+     
 def print_table(data, headers):
     
     """
@@ -422,8 +426,8 @@ def print_req_5(control):
     print(f"\nSe encontraron {n_jugadores} jugadores")
     print(f"\nSe encontraron {n_anotaciones} anotaciones por parte de {anotador}")
     print(f"\nSe encontraron {n_torneos} torneos donde anoto {anotador}")
-    print(f"\nSe encontraron {n_penales} penales")
-    print(f"\nSe encontraron {n_autogoles} autogoles")
+    print(f"\nSe encontraron {n_penales} penales del jugador")
+    print(f"\nSe encontraron {n_autogoles} autogoles del jugador")
     
     # Se muestra la tabla de resultados
     print_table(anotaciones, headers)
@@ -449,7 +453,9 @@ def print_req_6(control):
     
     controller_response = controller.req_6(control, n_equipos, torneo, año)
     
-    equipos_a_mostrar, equipos_encontrados = controller_response[0]
+    equipos_a_mostrar, equipos_encontrados, n_torneos, n_ciudades, n_paises, max_ciudad = controller_response[0]
+    
+    tabulate_column(equipos_a_mostrar, "jugadores")
     
     # Se definen los encabezados de la tabla
     headers = {"equipo": "Equipo",
@@ -462,7 +468,8 @@ def print_req_6(control):
                "empates": "Empates",
                "derrotas": "Derrotas",
                "goles_favor": "Goles a favor",
-               "goles_contra": "Goles en contra"}
+               "goles_contra": "Goles en contra",
+               "jugadores": "Maximo anotador"}
     
     # Se imprimen los datos de la consulta
     print("\n=============== Datos del usuario ==================")
@@ -476,7 +483,12 @@ def print_req_6(control):
     print("\n=============== Resultados ==================")
     print(f"\nTiempo de ejecución del algoritmo: {controller_response[1]} ms")
     print(f"\nUso de memoria del algoritmo: {controller_response[2]} KB")
-    print(f"Se encontraron {equipos_encontrados} equipos\n")
+    print(f"\nSe encontraron {n_torneos} torneos en el año {año}\n")
+    print(f"Se encontraron {equipos_encontrados} equipos en el torneo {torneo}\n")
+    print(f"Se encontraron {n_ciudades} ciudades en el torneo {torneo}\n")
+    print(f"Se encontraron {n_paises} paises en el torneo {torneo}\n")
+    print(f"La ciudad con mas partidos disputados es {max_ciudad}")
+    
     print_table(equipos_a_mostrar, headers)
 
 def print_req_7(control):
@@ -504,30 +516,21 @@ def print_req_7(control):
     # Solicita al usuario los datos de la consulta
     torneo = input("Ingrese el nombre del torneo que desea consultar\n")
     puntaje = input("Ingrese el puntaje que desea consultar\n")
-    año_inicial = input("Ingrese el año inicial que desea consultar\n")
-    mes_inicial = input("Ingrese el mes inicial que desea consultar\n")
-    dia_inicial = input("Ingrese el dia inicial que desea consultar\n")
-    año_final = input("Ingrese el año final que desea consultar\n")
-    mes_final = input("Ingrese el mes final que desea consultar\n")
-    dia_final = input("Ingrese el dia final que desea consultar\n")
     
-    # Formatea las fechas en un string
-    fecha_inicial = f"{año_inicial}-{mes_inicial}-{dia_inicial}"
-    fecha_final = f"{año_final}-{mes_final}-{dia_final}"
     
     # Llama a la función req_7 del controlador para obtener los resultados
     
-    controller_response = controller.req_7(control, torneo, puntaje, fecha_inicial, fecha_final)
+    controller_response = controller.req_7(control, torneo, puntaje)
     
     n_torneos, n_anotadores, n_anotadores_puntaje, n_goles, n_partidos, n_autogoles, n_penalties, jugadores = controller_response[0]
+    
+    tabulate_column(jugadores, "ultimo_partido")
     
     # Imprime los datos de la consulta
     print("\n=============== Datos del usuario ==================")
     print(f"\nTorneo: {torneo}")
     print(f"\nJugadores con {puntaje} de puntaje")
-    print(f"\nFecha inicial: {año_inicial}-{mes_inicial}-{dia_inicial}")
-    print(f"\nFecha final: {año_final}-{mes_final}-{dia_final}")
-    
+
     # Imprime los resultados de la consulta
     print("\n=============== Resultados ==================")
     print(f"\nTiempo de ejecución del algoritmo: {controller_response[1]} ms")

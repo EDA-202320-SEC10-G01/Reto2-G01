@@ -117,7 +117,7 @@ def req_1(control, n_partidos, equipo, condicion):
     time = delta_time(first_time, last_time)
     memory = delta_memory(last_memory, first_memory)
     
-    return model_response, time , memory
+    return model_response, round(time,2) , round(memory,2)
 
 def req_2(control, n_goles, jugador):
     
@@ -132,7 +132,7 @@ def req_2(control, n_goles, jugador):
     time = delta_time(first_time, last_time)
     memory = delta_memory(last_memory, first_memory)
 
-    return model_response, time , memory
+    return model_response, round(time,2) , round(memory,2)
 
 def req_3(control, equipo, fecha_inicial, fecha_final):
     
@@ -147,7 +147,7 @@ def req_3(control, equipo, fecha_inicial, fecha_final):
     time = delta_time(first_time, last_time)
     memory = delta_memory(last_memory, first_memory)
 
-    return model_response, time , memory
+    return model_response, round(time,2) , round(memory,2)
 
 def req_4(control, torneo, fecha_inicial, fecha_final):
     
@@ -162,7 +162,7 @@ def req_4(control, torneo, fecha_inicial, fecha_final):
     time = delta_time(first_time, last_time)
     memory = delta_memory(last_memory, first_memory)
 
-    return model_response, time , memory
+    return model_response, round(time,2) , round(memory,2)
 
 def req_5(control, anotador, fecha_inicial, fecha_final):
     
@@ -177,7 +177,7 @@ def req_5(control, anotador, fecha_inicial, fecha_final):
     time = delta_time(first_time, last_time)
     memory = delta_memory(last_memory, first_memory)
 
-    return model_response, time , memory
+    return model_response, round(time,2) , round(memory,2)
 
 def req_6(control, n_equipos, torneo, año):
     
@@ -192,14 +192,14 @@ def req_6(control, n_equipos, torneo, año):
     time = delta_time(first_time, last_time)
     memory = delta_memory(last_memory, first_memory)
 
-    return model_response, time , memory
+    return model_response, round(time,2) , round(memory,2)
 
-def req_7(control, torneo, puntaje, fecha_inicio, fecha_fin):
+def req_7(control, torneo, puntaje):
     
     tracemalloc.start()
     first_time = get_time()
     first_memory = get_memory()
-    model_response = model.req_7(control, torneo, puntaje, fecha_inicio, fecha_fin)
+    model_response = model.req_7(control, torneo, puntaje)
     last_time = get_time()
     last_memory = get_memory()
     tracemalloc.stop()
@@ -207,7 +207,7 @@ def req_7(control, torneo, puntaje, fecha_inicio, fecha_fin):
     time = delta_time(first_time, last_time)
     memory = delta_memory(last_memory, first_memory)
 
-    return model_response, time , memory
+    return model_response, round(time,2) , round(memory,2)
 
 #Funciones para manejar el tiempo y la memoria
 
