@@ -148,7 +148,7 @@ def req_1(control, n_partidos, equipo, condicion):
             
 def req_2(control, n_goles, jugador):
     
-    goles_jugador = lt.newList("ARRAY_LIST")
+    goles_jugador_stack = st.newStack()
     jugadores = set()
     n_penales = 0
     
@@ -157,10 +157,14 @@ def req_2(control, n_goles, jugador):
         set.add(jugadores, player["scorer"])
         
         if player["scorer"] == jugador:
-            lt.addLast(goles_jugador, player)
+            st.push(goles_jugador_stack, player)
             if player["penalty"] == "True":
                 n_penales += 1
-            
+    
+    goles_jugador = lt.newList("ARRAY_LIST")
+    
+    while not st.isEmpty(goles_jugador_stack):
+        lt.addLast(goles_jugador, st.pop(goles_jugador_stack))       
             
     if int(n_goles) > lt.size(goles_jugador):
         goles_a_mostrar = lt.subList(goles_jugador, 1, lt.size(goles_jugador))
@@ -858,8 +862,11 @@ def req_8(control, equipo, fecha_inicial, fecha_final):
                                                 "Goles": 0,
                                                 "Partidos": 0,
                                                 "Minuto Promedio": 0}
+            
+            
+    partido_reciente = {"Fecha": ultimo_partido["date"], "Equipo Local": ultimo_partido["home_team"], "Equipo Visitante": ultimo_partido["away_team"], "Marcador Local": ultimo_partido["home_score"], "Marcador Visitante": ultimo_partido["away_score"], "Torneo": ultimo_partido["tournament"], "Ciudad": ultimo_partido["city"], "País": ultimo_partido["country"]}
     
-    return lista_por_año, ultimo_partido, partidos_totales, partidos_local, partidos_visitante, fecha_partido_antiguo     
+    return lista_por_año, partido_reciente, partidos_totales, partidos_local, partidos_visitante, fecha_partido_antiguo     
              
 #Funcion de ordenamiento y sus auxiliares
     

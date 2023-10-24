@@ -228,7 +228,7 @@ def print_req_2(control):
     
     #Se piden los datos al usuario
     jugador = input("Ingrese el nombre del jugador que desea consultar\n")
-    n_goles = input("Ingrese el numero de goles mas recientes que desea consultar\n")
+    n_goles = input("Ingrese el numero de goles mas antiguos que desea consultar\n")
     
     #Define los encabezados para la tabla que se imprimirá
     
